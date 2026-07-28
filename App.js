@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, TextInput, Button, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { WebView } from 'react-native-webview';
 import CookieManager from '@react-native-cookies/cookies';
 
@@ -81,6 +81,28 @@ const App = () => {
     }
   };
 
+  const reloadWebView = () => {
+    if (webviewRef.current) {
+      webviewRef.current.reload();
+    }
+  };
+
+  const closeWebView = () => {
+    setLoadWebView(false);
+    setStatus('');
+    setLink('');
+  };
+
+  // اسکریپت رفرش خودکار در صورت مشاهده خطای فرانت‌اند مقصد
+  const autoRecoveryScript = `
+    setInterval(function() {
+      if (document.body && document.body.innerText.includes('به مشکل برخوردیم')) {
+         window.location.reload();
+      }
+    }, 3000);
+    true;
+  `;
+
   return (
     <View style={styles.container}>
       {!loadWebView ? (
@@ -99,14 +121,27 @@ const App = () => {
           <Text style={styles.statusText}>{status}</Text>
         </View>
       ) : (
-        <WebView
-          ref={webviewRef}
-          source={{ uri: 'https://www.okala.com' }}
-          injectedJavaScriptBeforeContentLoaded={injectedJS}
-          sharedCookiesEnabled={true}
-          thirdPartyCookiesEnabled={true}
-          style={{ flex: 1 }}
-        />
+        <View style={{ flex: 1 }}>
+          <View style={styles.header}>
+            <TouchableOpacity onPress={closeWebView} style={styles.headerButton}>
+              <Text style={styles.headerButtonText}>بازگشت</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>مرورگر سیستم</Text>
+            <TouchableOpacity onPress={reloadWebView} style={styles.headerButton}>
+              <Text style={styles.headerButtonText}>بارگذاری مجدد</Text>
+            </TouchableOpacity>
+          </View>
+          
+          <WebView
+            ref={webviewRef}
+            source={{ uri: 'https://www.okala.com' }}
+            injectedJavaScriptBeforeContentLoaded={injectedJS}
+            injectedJavaScript={autoRecoveryScript}
+            sharedCookiesEnabled={true}
+            thirdPartyCookiesEnabled={true}
+            style={{ flex: 1 }}
+          />
+        </View>
       )}
     </View>
   );
@@ -116,8 +151,22 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f6fa' },
   formContainer: { flex: 1, justifyContent: 'center', padding: 20 },
   title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, color: '#2c3e50' },
-  input: { borderWidth: 1, borderColor: '#bdc3c7', padding: 12, marginBottom: 15, borderRadius: 5, backgroundColor: '#fff' },
-  statusText: { marginTop: 20, textAlign: 'center', color: '#e74c3c', fontWeight: 'bold' }
+  input: { borderWidth: 1, borderColor: '#bdc3c7', padding: 12, marginBottom: 15, borderRadius: 5, backgroundColor: '#fff', textAlign: 'left' },
+  statusText: { marginTop: 20, textAlign: 'center', color: '#e74c3c', fontWeight: 'bold' },
+  
+  // استایل‌های مربوط به نوار وضعیت بالای وب‌ویو
+  header: {
+    flexDirection: 'row-reverse',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#2c3e50',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginTop: 25, // جهت فاصله از نوار وضعیت گوشی
+  },
+  headerTitle: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
+  headerButton: { padding: 5 },
+  headerButtonText: { color: '#ecf0f1', fontSize: 14, fontWeight: 'bold' },
 });
 
 export default App;
