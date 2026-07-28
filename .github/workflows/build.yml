@@ -1,0 +1,31 @@
+name: Build Android APK
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Install Dependencies
+        run: npm install
+      - name: Generate Native Android Code
+        run: npx expo prebuild -p android --no-install
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleRelease
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: LinkMaker-App
+          path: android/app/build/outputs/apk/release/app-release.apk
