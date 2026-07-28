@@ -21,15 +21,22 @@ jobs:
         run: npm install
       - name: Generate Native Android Code
         run: npx expo prebuild -p android --no-install
+        
+      - name: Enable APK Splitting (Reduce App Size)
+        run: |
+          sed -i 's/def enableSeparateBuildPerCPUArchitecture = false/def enableSeparateBuildPerCPUArchitecture = true/' android/app/build.gradle
+          
       - name: Inject Missing Android Resources
         run: |
           mkdir -p android/app/src/main/res/values
           echo '<?xml version="1.0" encoding="utf-8"?><resources><color name="splashscreen_background">#FFFFFF</color><color name="colorPrimary">#2c3e50</color><color name="colorPrimaryDark">#1a252f</color><color name="colorAccent">#2c3e50</color></resources>' > android/app/src/main/res/values/colors.xml
+          
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleRelease
+        
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: LinkMaker-App
+          name: LinkMaker-App-Optimized
           path: android/app/build/outputs/apk/release/*.apk
