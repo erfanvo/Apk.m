@@ -93,13 +93,13 @@ const App = () => {
     setLink('');
   };
 
-  // اسکریپت رفرش خودکار در صورت مشاهده خطای فرانت‌اند مقصد
+  // اسکریپت رفرش خودکار ارتقا یافته: هدایت مستقیم به پروفایل در صورت خطا
   const autoRecoveryScript = `
     setInterval(function() {
       if (document.body && document.body.innerText.includes('به مشکل برخوردیم')) {
-         window.location.reload();
+         window.location.href = 'https://www.okala.com/profile';
       }
-    }, 3000);
+    }, 2500);
     true;
   `;
 
@@ -134,7 +134,8 @@ const App = () => {
           
           <WebView
             ref={webviewRef}
-            source={{ uri: 'https://www.okala.com' }}
+            // تغییر آدرس اولیه جهت ورود مستقیم به پروفایل
+            source={{ uri: 'https://www.okala.com/profile' }}
             injectedJavaScriptBeforeContentLoaded={injectedJS}
             injectedJavaScript={autoRecoveryScript}
             sharedCookiesEnabled={true}
@@ -154,7 +155,6 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#bdc3c7', padding: 12, marginBottom: 15, borderRadius: 5, backgroundColor: '#fff', textAlign: 'left' },
   statusText: { marginTop: 20, textAlign: 'center', color: '#e74c3c', fontWeight: 'bold' },
   
-  // استایل‌های مربوط به نوار وضعیت بالای وب‌ویو
   header: {
     flexDirection: 'row-reverse',
     justifyContent: 'space-between',
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2c3e50',
     paddingVertical: 15,
     paddingHorizontal: 20,
-    marginTop: 25, // جهت فاصله از نوار وضعیت گوشی
+    marginTop: 25,
   },
   headerTitle: { color: '#ffffff', fontSize: 16, fontWeight: 'bold' },
   headerButton: { padding: 5 },
@@ -170,3 +170,4 @@ const styles = StyleSheet.create({
 });
 
 export default App;
+
